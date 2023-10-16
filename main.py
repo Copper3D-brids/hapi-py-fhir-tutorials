@@ -11,6 +11,7 @@ from utils import pprint
 async def initDataSite(client):
     # dataset_path = './dataset_2/config'
     # dataset_path = './dataset_2/failed'
+    # TODO: download the FHIR R 4 dataset from synthea website to the dataset folder.
     dataset_path = './dataset'
     await import_dataset(client, dataset_path)
 

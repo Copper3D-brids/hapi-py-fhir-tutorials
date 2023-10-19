@@ -6,6 +6,7 @@ from observationOperator import ObservationOperator, do_observation
 from schedule import do_schedule
 from appointment import do_appointment
 from encounter import do_encounter
+from imagingStudyOperator import operationImagingStudy
 from utils import pprint
 
 async def initDataSite(client):
@@ -26,9 +27,9 @@ async def main():
     # TODO 1: load synthea data
     # await initDataSite((client))
     #TODO 2: familar with Patient resource
-    await operationPatient(client)
+    # await operationPatient(client)
     #TODO 3: familar with Observation resource
-    # await do_observation(client)
+    await do_observation(client)
 
     #TODO 4: familar with schedule
     # await do_schedule(client)
@@ -38,6 +39,9 @@ async def main():
 
     #TODO 6: familar with encounter
     # await do_encounter(client)
+
+    #TODO 7: ImagingStudy
+    # await operationImagingStudy(client)
 
     # patients = client.resources('Patient')
     # patients_count = await patients.count()

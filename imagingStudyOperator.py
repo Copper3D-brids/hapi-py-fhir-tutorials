@@ -1,7 +1,10 @@
 from utils import pprint
+from pathlib import Path
+import pydicom
 
 
 async def operationImagingStudy(client):
+    # perpareData()
     # await getSortedImagingStudys(client)
     await searchImagingStudy(client)
     # await getFirstImagingStudy(client)
@@ -9,7 +12,17 @@ async def operationImagingStudy(client):
     # await updateImagingStudy(client)
     # await deleteImagingStudy(client)
 
+def perpareData():
+    sparc_fhir_structure = {}
+    sparc_data_path = Path("./sparc_fhir_dataset/primary/")
+    for study in sparc_data_path.iterdir():
+        if study.is_dir():
+            sparc_fhir_structure[study.name]={}
+            for series in study.iterdir():
+                if series.is_dir():
+                    sparc_fhir_structure[study.name][series.name] = list(series.glob('*.dcm'))
 
+    print(sparc_fhir_structure)
 async def deleteImagingStudy(client):
     ImagingStudyResource = client.resources('ImagingStudy')
     ImagingStudys = await ImagingStudyResource.search(name=['John', 'Thompson']).fetch_all()
@@ -66,12 +79,16 @@ async def searchImagingStudy(client):
     """
 
 
-    patientsResourceSearchSet = client.resources("Patient")
-    patients = await patientsResourceSearchSet.search(name=['Allyson474','Crooks415']).fetch()
+    # patientsResourceSearchSet = client.resources("Patient")
+    # patients = await patientsResourceSearchSet.search(name=['Allyson474','Crooks415']).fetch()
+    #
+    # imagingStudyResourceSearchSet = client.resources('ImagingStudy')
+    # imagingStudys = await imagingStudyResourceSearchSet.search(patient=patients[0].to_reference()).fetch_all()
+    # print(imagingStudys[0].get('identifier'))
 
-    imagingStudyResourceSearchSet = client.resources('ImagingStudy')
-    imagingStudys = await imagingStudyResourceSearchSet.search(patient=patients[0].to_reference()).fetch_all()
-    print(imagingStudys)
+    patients = await client.resources('Patient').has('Observation', 'patient', category='vital-signs').fetch()
+
+    print(len(patients))
 
 
 

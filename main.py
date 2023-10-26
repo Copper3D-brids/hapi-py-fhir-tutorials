@@ -35,10 +35,10 @@ async def main():
     # await do_schedule(client)
 
     #TODO 5: familar with appointment
-    await do_appointment(client)
+    # await do_appointment(client)
 
     #TODO 6: familar with encounter
-    # await do_encounter(client)
+    await do_encounter(client)
 
     #TODO 7: ImagingStudy
     # await operationImagingStudy(client)

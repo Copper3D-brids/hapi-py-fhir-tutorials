@@ -1,9 +1,9 @@
 from utils import pprint
 async def do_appointment(client):
    participants = await find_pactitioner(client)
-   # await creatAppointment(client,participants[0],participants[1],participants[2])
-   await updateAppointment(client, participants[1])
-   await findAppointment(client, participants[1])
+   await creatAppointment(client,participants[0],participants[1],participants[2])
+   # await updateAppointment(client, participants[1])
+   # await findAppointment(client, participants[1])
 
 async def find_pactitioner(client):
     patient = await client.resources('Patient').search(name=['john','thompson']).first()
@@ -25,6 +25,8 @@ async def creatAppointment(client, schedule,patient,slot):
     participants = [{'actor':actor, 'status': 'needs-action'} for actor in schedule['actor']]
 
     print(participants)
+    location = await participants[1]['actor'].to_resource()
+    print(location['address'])
 
     # Plus the patient
     participants += [{'actor':patient.to_reference(), 'status':"accepted"}]

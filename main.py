@@ -29,7 +29,7 @@ async def main():
     #TODO 2: familar with Patient resource
     # await operationPatient(client)
     #TODO 3: familar with Observation resource
-    await do_observation(client)
+    # await do_observation(client)
 
     #TODO 4: familar with schedule
     # await do_schedule(client)
@@ -38,7 +38,7 @@ async def main():
     # await do_appointment(client)
 
     #TODO 6: familar with encounter
-    # await do_encounter(client)
+    await do_encounter(client)
 
     #TODO 7: ImagingStudy
     # await operationImagingStudy(client)

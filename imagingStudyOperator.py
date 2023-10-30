@@ -212,7 +212,7 @@ async def createImagingStudy(client, sparc_fhir_structure):
 
 async def searchImagingStudy(client):
     patientsResourceSearchSet = client.resources("Patient")
-    bob = await patientsResourceSearchSet.search(name=['db']).first()
+    bob = await patientsResourceSearchSet.search(name=['bob']).first()
 
     # find all studies of a patient cross all datasets
     imagingStudyResourceSearchSet = client.resources('ImagingStudy')

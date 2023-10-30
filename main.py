@@ -38,10 +38,10 @@ async def main():
     # await do_appointment(client)
 
     #TODO 6: familar with encounter
-    await do_encounter(client)
+    # await do_encounter(client)
 
     #TODO 7: ImagingStudy
-    # await operationImagingStudy(client)
+    await operationImagingStudy(client)
 
     # patients = client.resources('Patient')
     # patients_count = await patients.count()

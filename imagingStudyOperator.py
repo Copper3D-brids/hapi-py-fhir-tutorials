@@ -1,102 +1,243 @@
 from utils import pprint
 from pathlib import Path
 import pydicom
+from datetime import datetime
+import uuid
 
 
 async def operationImagingStudy(client):
-    # perpareData()
-    # await getSortedImagingStudys(client)
-    await searchImagingStudy(client)
-    # await getFirstImagingStudy(client)
-    # await createImagingStudy(client)
+    # sparc_structure = await perpareData(client)
+    # await createImagingStudy(client, sparc_structure)
     # await updateImagingStudy(client)
+    await searchImagingStudy(client)
     # await deleteImagingStudy(client)
 
-def perpareData():
-    sparc_fhir_structure = {}
-    sparc_data_path = Path("./sparc_fhir_dataset/primary/")
-    for study in sparc_data_path.iterdir():
-        if study.is_dir():
-            sparc_fhir_structure[study.name]={}
-            for series in study.iterdir():
-                if series.is_dir():
-                    sparc_fhir_structure[study.name][series.name] = list(series.glob('*.dcm'))
 
-    print(sparc_fhir_structure)
-async def deleteImagingStudy(client):
-    ImagingStudyResource = client.resources('ImagingStudy')
-    ImagingStudys = await ImagingStudyResource.search(name=['John', 'Thompson']).fetch_all()
-    for ImagingStudy in ImagingStudys:
-        await ImagingStudy.delete()
+async def perpareData(client):
+    sparc_fhir_structure = {}
+    sparc_data_paths = [Path("./sparc_fhir_breast_dataset/primary/"), Path("./sparc_fhir_heart_dataset/primary/")]
+    for sparc_data_path in sparc_data_paths:
+        sparc_fhir_structure[sparc_data_path.parent] = {}
+        for study in sparc_data_path.iterdir():
+            if study.is_dir():
+                sparc_fhir_structure[sparc_data_path.parent][study.name] = {}
+                for series in study.iterdir():
+                    if series.is_dir():
+                        sparc_fhir_structure[sparc_data_path.parent][study.name][series.name] = list(
+                            series.glob('*.dcm'))
+
+    print(list(sparc_fhir_structure.keys()))
+
+    return sparc_fhir_structure
+
+    # await deletePatients(client, ['bob', 'db'])
+
+    # await createPatients(client)
+
+
+async def deletePatients(client, names):
+    patientResource = client.resources('Patient')
+    for name in names:
+        patients = await patientResource.search(name=[name]).fetch_all()
+        for patient in patients:
+            await patient.delete()
+
+
+async def createPatients(client):
+    bob = client.resource('Patient',
+                          name=[
+                              {
+                                  'given': ['Bob'],
+                                  'family': '',
+                                  'use': 'official',
+                                  'prefix': ['Mr. '],
+                              }
+                          ],
+                          gender="female",
+                          brithDate='1995-09-22'
+                          )
+    db = client.resource('Patient',
+                         name=[
+                             {
+                                 'given': ['Db'],
+                                 'family': '',
+                                 'use': 'official',
+                                 'prefix': ['Mr. '],
+                             }
+                         ],
+                         gender="female",
+                         brithDate='1993-08-15'
+                         )
+    await bob.save()
+    await db.save()
+
+
+async def deleteImagingStudy(client, imagingstudys):
+    for imagingstudy in imagingstudys:
+        await imagingstudy.delete()
 
 
 async def updateImagingStudy(client):
-    ImagingStudyResource = client.resources('ImagingStudy')
-    ImagingStudys = await ImagingStudyResource.search(name=['John', 'Thompson']).fetch_all()
-    for ImagingStudy in ImagingStudys:
-        ImagingStudy['address'] = {
-            "line": "1818 Market St",
-            "city": "Auckland",
-            "state": "Auckland",
-            "postalCode": "1010",
-            "country": "NZ"
-        }
-        ImagingStudy['telecom'] = [
-            {
-                "system": "phone",
-                "value": "(215) 352-3801",
-                "use": "home"
-            }
-        ]
-        await ImagingStudy.save()
+    imagingStudyResourceSearchSet = client.resources('ImagingStudy')
+    count = await imagingStudyResourceSearchSet.count()
+    imagingStudys = await imagingStudyResourceSearchSet.limit(count).fetch()
+
+    # https://browser.ihtsdotools.org/?perspective=full&conceptId1=76752008&edition=MAIN/2023-10-01&release=&languages=en&latestRedirect=false
+    # find a patient in which datasets
+    for imagingstudy in imagingStudys:
+        if "identifier" in imagingstudy:
+            for identifier in imagingstudy['identifier']:
+                if identifier.get('system') == 'urn:sparc_dataset:uid':
+
+                    for index, series in enumerate(imagingstudy["series"]):
+                        if "breast" in identifier.get('value'):
+                            imagingstudy["series"][index]["bodySite"] = {
+                                "system": "http://snomed.info/sct",
+                                "code": "76752008",
+                                "display": "Breast"
+                            }
+                        elif "heart" in identifier.get('value'):
+                            imagingstudy["series"][index]["bodySite"] = {
+                                "system": "http://snomed.info/sct",
+                                "code": "80891009",
+                                "display": "Heart"
+                            }
+                        await imagingstudy.save()
 
 
-async def createImagingStudy(client):
+
+
+async def createImagingStudy(client, sparc_fhir_structure):
     """
         As for creating a resource, should use client.resource('ImagingStudy')
     """
-    new_ImagingStudy = client.resource('ImagingStudy')
-    new_ImagingStudy['name'] = [
-        {
-            'given': ['John'],
-            'family': 'Thompson',
-            'use': 'official',
-            'prefix': ['Mr. '],
-        }
-    ]
 
-    # format year-month-day
-    new_ImagingStudy['brithDate'] = '1995-09-22'
-    await new_ImagingStudy.save()
-    print(new_ImagingStudy['id'])
-    print(new_ImagingStudy['meta'])
+    # (0020, 000d) Study Instance UID
+    # (0020, 000e) Series Instance UID
+    # (0008, 0018) SOP Instance UID
+    # (0020, 0013) Instance Number
+    # (0008, 0030) Study Time
+    # (0020,1208) Number of Study Related Instances
+    # (0020,1206) Number of Study Related Series
+    # (0020,1209) Number of Series Related Instances
+    # (0018, 0010) Contrast/Bolus Agent                LO: 'Magnevist'
+    # (0018, 0015) Body Part Examined                  CS: 'BREAST'
+
+    datasets = list(sparc_fhir_structure.keys())
+
+    for dataset in datasets:
+        studies = list(sparc_fhir_structure[dataset].keys())
+        for study in studies:
+            patient = None
+            samples = list(sparc_fhir_structure[dataset][study].keys())
+            dicom_file = pydicom.dcmread(sparc_fhir_structure[dataset][study][samples[0]][0])
+            study_uid = dicom_file[(0x0020, 0x000d)].value
+
+            try:
+                dicom_study_time = dicom_file[(0x0008, 0x0030)].value
+                started_time = datetime.strptime(dicom_study_time, "%H%M%S.%f").strftime("%Y-%m-%dT%H:%M:%S")
+            except:
+                started_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+            try:
+                numberOfSeries = int(dicom_file[(0x0020, 0x1206)].value)
+            except:
+                numberOfSeries = len(samples)
+
+            try:
+                numberOfInstances = int(dicom_file[(0x0020, 0x1208)].value)
+            except:
+                numberOfInstances = 0
+                for sample in samples:
+                    numberOfInstances += len(sparc_fhir_structure[dataset][study][sample])
+
+            if 'bob' in study:
+                patient = await client.resources('Patient').search(name=['Bob']).first()
+            elif 'db' in study:
+                patient = await client.resources('Patient').search(name=['db']).first()
+
+            if patient is not None:
+                series = []
+                for sample in samples:
+                    instances = []
+                    sample_dicom_file = pydicom.dcmread(sparc_fhir_structure[dataset][study][sample][0])
+                    try:
+                        numberOfSeriesInstances = int(sample_dicom_file[(0x0020, 0x1209)].value)
+                    except:
+                        numberOfSeriesInstances = len(sparc_fhir_structure[dataset][study][sample])
+
+                    for item in sparc_fhir_structure[dataset][study][sample]:
+                        instance_dicom_file = pydicom.dcmread(item)
+                        dicom_instance = {
+                            "uid": instance_dicom_file[(0x0008, 0x0018)].value,
+                            "number": instance_dicom_file[(0x0020, 0x0013)].value,
+                        }
+                        instances.append(dicom_instance)
+
+                    series.append({
+                        "uid": sample_dicom_file[(0x0020, 0x000e)].value,
+                        "modality": {
+                            "system": "http://dicom.nema.org/resources/ontology/DCM",
+                            "code": "MR"
+                        },
+                        "numberOfInstances": numberOfSeriesInstances,
+                        "instance": instances
+                    })
+
+                imagingResource = client.resource('ImagingStudy',
+                                                  identifier=[{
+                                                      "system": "urn:dicom:uid",
+                                                      "value": f"urn:oid:{study_uid}"
+                                                  },
+                                                      {
+                                                          "use": 'temp',
+                                                          "system": "urn:sparc_study:uid",
+                                                          "value": f"urn:uid:{study + '-' + study_uid}"
+                                                      },
+                                                      {
+                                                          "use": 'temp',
+                                                          "system": "urn:sparc_dataset:uid",
+                                                          "value": f"urn:uid:{str(dataset) + '-' + str(uuid.uuid4())}"
+                                                      },
+                                                  ],
+                                                  status="available",
+                                                  subject=patient.to_reference(),
+                                                  started=started_time,
+                                                  numberOfSeries=numberOfSeries,
+                                                  numberOfInstances=numberOfInstances,
+                                                  series=series
+                                                  )
+                await imagingResource.save()
 
 
 async def searchImagingStudy(client):
-    """
-        search(name=['John', 'Thompson']): AND search parameter, search all ImagingStudys who with the first name John and the last name Thompson.
-        search(name='John,Carl'): OR search parameter, search all ImagingStudys who with name John or Carl,
-    """
+    patientsResourceSearchSet = client.resources("Patient")
+    bob = await patientsResourceSearchSet.search(name=['db']).first()
 
-
-    # patientsResourceSearchSet = client.resources("Patient")
-    # patients = await patientsResourceSearchSet.search(name=['Allyson474','Crooks415']).fetch()
-    #
-    # imagingStudyResourceSearchSet = client.resources('ImagingStudy')
-    # imagingStudys = await imagingStudyResourceSearchSet.search(patient=patients[0].to_reference()).fetch_all()
-    # print(imagingStudys[0].get('identifier'))
-
-    patients = await client.resources('Patient').has('Observation', 'patient', category='vital-signs').fetch()
-
-    print(len(patients))
-
-
-
-async def getSortedImagingStudys(client):
-    imagingStudys = await client.resources('ImagingStudy').fetch()
-
+    # find all studies of a patient cross all datasets
+    imagingStudyResourceSearchSet = client.resources('ImagingStudy')
+    imagingStudys = await imagingStudyResourceSearchSet.search(patient=bob.to_reference()).fetch_all()
     printImagingStudys(imagingStudys)
-    print("*********************1*********************")
+
+    # find a patient in which datasets
+    for imagingstudy in imagingStudys:
+        print(imagingstudy['series'])
+        for identifier in imagingstudy['identifier']:
+            if identifier.get('system') == 'urn:sparc_dataset:uid':
+                print(identifier.get('value'))
+
+
+
+    # find all breast ImagingStudy resources
+    imagingstudys = await client.resources('ImagingStudy').search(bodysite="76752008").fetch_all()
+    print(imagingstudys)
+    # find all heart ImagingStudy resources
+    imagingstudys = await client.resources('ImagingStudy').search(bodysite="80891009").fetch_all()
+    print(imagingstudys)
+
+    #urn:uid:sparc_fhir_heart_dataset-9c3319e9-38f0-42fc-9b41-28a1be44f72e
+    tt = await imagingStudyResourceSearchSet.search(identifier='urn:uid:sparc_fhir_heart_dataset-9c3319e9-38f0-42fc-9b41-28a1be44f72e').fetch()
+    print(tt)
 
 
 def printImagingStudys(ImagingStudys):
@@ -105,12 +246,9 @@ def printImagingStudys(ImagingStudys):
 
 
 def printImagingStudy(ImagingStudy):
-    print('{0} {1} {2} {3} {4} {5} {6}'.format(
+    print('{0} {1} {2} {3}'.format(
         ImagingStudy.get('id'),
-        ImagingStudy.get('meta'),
-        ImagingStudy.get_by_path('name.0.family'),
-        ImagingStudy.get_by_path('name.0.given.0'),
-        ImagingStudy.get('gender'),
-        ImagingStudy.get_by_path('telecom.0.value'),
+        ImagingStudy.get('series')[0].get('uid'),
+        ImagingStudy.get_by_path('series[0].instance[0].uid'),
         ImagingStudy.get('identifier'),
     ))

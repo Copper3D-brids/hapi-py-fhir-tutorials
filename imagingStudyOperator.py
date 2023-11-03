@@ -44,10 +44,10 @@ async def deletePatients(client, names):
 
 
 async def createPatients(client):
-    bob = client.resource('Patient',
+    Aniyah = client.resource('Patient',
                           name=[
                               {
-                                  'given': ['Bob'],
+                                  'given': ['Aniyah'],
                                   'family': '',
                                   'use': 'official',
                                   'prefix': ['Mr. '],
@@ -56,11 +56,11 @@ async def createPatients(client):
                           gender="female",
                           brithDate='1995-09-22'
                           )
-    db = client.resource('Patient',
+    Linman = client.resource('Patient',
                          name=[
                              {
-                                 'given': ['Db'],
-                                 'family': '',
+                                 'given': ['Linman'],
+                                 'family': 'Zhang',
                                  'use': 'official',
                                  'prefix': ['Mr. '],
                              }
@@ -68,8 +68,8 @@ async def createPatients(client):
                          gender="female",
                          brithDate='1993-08-15'
                          )
-    await bob.save()
-    await db.save()
+    await Aniyah.save()
+    await Linman.save()
 
 
 async def deleteImagingStudy(client, imagingstudys):
@@ -151,10 +151,10 @@ async def createImagingStudy(client, sparc_fhir_structure):
                 for sample in samples:
                     numberOfInstances += len(sparc_fhir_structure[dataset][study][sample])
 
-            if 'bob' in study:
-                patient = await client.resources('Patient').search(name=['Bob']).first()
-            elif 'db' in study:
-                patient = await client.resources('Patient').search(name=['db']).first()
+            if 'Aniyah' in study:
+                patient = await client.resources('Patient').search(name=['Aniyah']).first()
+            elif 'Linman' in study:
+                patient = await client.resources('Patient').search(name=['Linman']).first()
 
             if patient is not None:
                 series = []
@@ -212,11 +212,11 @@ async def createImagingStudy(client, sparc_fhir_structure):
 
 async def searchImagingStudy(client):
     patientsResourceSearchSet = client.resources("Patient")
-    bob = await patientsResourceSearchSet.search(name=['bob']).first()
+    Aniyah = await patientsResourceSearchSet.search(name=['Aniyah']).first()
 
     # find all studies of a patient cross all datasets
     imagingStudyResourceSearchSet = client.resources('ImagingStudy')
-    imagingStudys = await imagingStudyResourceSearchSet.search(patient=bob.to_reference()).fetch_all()
+    imagingStudys = await imagingStudyResourceSearchSet.search(patient=Aniyah.to_reference()).fetch_all()
     printImagingStudys(imagingStudys)
 
     # find a patient in which datasets

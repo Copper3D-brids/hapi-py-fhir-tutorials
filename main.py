@@ -7,6 +7,7 @@ from schedule import do_schedule
 from appointment import do_appointment
 from encounter import do_encounter
 from imagingStudyOperator import operationImagingStudy
+from dukeunidata import operationDukeEHR
 from utils import pprint
 
 async def initDataSite(client):
@@ -41,7 +42,10 @@ async def main():
     # await do_encounter(client)
 
     #TODO 7: ImagingStudy
-    await operationImagingStudy(client)
+    # await operationImagingStudy(client)
+
+    #TODO 8: Duke UNi EHR
+    await operationDukeEHR(client)
 
     # patients = client.resources('Patient')
     # patients_count = await patients.count()

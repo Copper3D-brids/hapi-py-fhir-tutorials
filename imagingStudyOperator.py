@@ -6,11 +6,13 @@ import uuid
 
 
 async def operationImagingStudy(client):
-    # sparc_structure = await perpareData(client)
+    sparc_structure = await perpareData(client)
+    # await createPatients(client)
     # await createImagingStudy(client, sparc_structure)
     # await updateImagingStudy(client)
     await searchImagingStudy(client)
     # await deleteImagingStudy(client)
+    # await deletePatients(client, ['bob', 'db'])
 
 
 async def perpareData(client):
@@ -40,8 +42,19 @@ async def deletePatients(client, names):
     for name in names:
         patients = await patientResource.search(name=[name]).fetch_all()
         for patient in patients:
-            await patient.delete()
+            try:
+                await patient.delete()
+            except Exception as e:
+                await deleteImagingStudys(client, patient)
 
+async def deleteImagingStudys(client, patient):
+    imagingStudyResource = client.resources('ImagingStudy')
+    imagingStudys = await imagingStudyResource.search(subject=patient.to_reference()).fetch_all()
+    for imagingStudy in imagingStudys:
+        try:
+            await imagingStudy.delete()
+        except Exception as e:
+            print(e)
 
 async def createPatients(client):
     Aniyah = client.resource('Patient',
@@ -214,9 +227,12 @@ async def searchImagingStudy(client):
     patientsResourceSearchSet = client.resources("Patient")
     Aniyah = await patientsResourceSearchSet.search(name=['Aniyah']).first()
 
+
     # find all studies of a patient cross all datasets
     imagingStudyResourceSearchSet = client.resources('ImagingStudy')
     imagingStudys = await imagingStudyResourceSearchSet.search(patient=Aniyah.to_reference()).fetch_all()
+    # imagingStudyResourceSearchSet = client.resources('ImagingStudy')
+    # imagingStudys = await imagingStudyResourceSearchSet.fetch()
     printImagingStudys(imagingStudys)
 
     # find a patient in which datasets
@@ -230,14 +246,14 @@ async def searchImagingStudy(client):
 
     # find all breast ImagingStudy resources
     imagingstudys = await client.resources('ImagingStudy').search(bodysite="76752008").fetch_all()
-    print(imagingstudys)
+    # print(imagingstudys)
     # find all heart ImagingStudy resources
     imagingstudys = await client.resources('ImagingStudy').search(bodysite="80891009").fetch_all()
-    print(imagingstudys)
+    # print(imagingstudys)
 
     #urn:uid:sparc_fhir_heart_dataset-9c3319e9-38f0-42fc-9b41-28a1be44f72e
     tt = await imagingStudyResourceSearchSet.search(identifier='urn:uid:sparc_fhir_heart_dataset-9c3319e9-38f0-42fc-9b41-28a1be44f72e').fetch()
-    print(tt)
+    # print(tt)
 
 
 def printImagingStudys(ImagingStudys):

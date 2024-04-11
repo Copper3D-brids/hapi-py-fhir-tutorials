@@ -35,6 +35,20 @@ async def updatePatient(client):
                 "use": "home"
             }
         ]
+        patient['extension'] = [
+            {
+              "url" : "http://hl7.org.nz/fhir/StructureDefinition/nz-ethnicity",
+              "valueCodeableConcept" : {
+                "coding" : [
+                  {
+                    "system" : "https://standards.digital.health.nz/ns/ethnic-group-level-4-code",
+                    "code" : "21111",
+                    "display" : "Māori"
+                  }
+                ]
+              }
+            },
+        ]
         await patient.save()
 
 
@@ -82,12 +96,13 @@ async def searchPatient(client):
         search(name='John,Carl'): OR search parameter, search all patients who with name John or Carl,
     """
     patientResource = client.resources('Patient')
-    patients = await patientResource.search(name=['John', 'Thompson']).fetch_all()
-    printPatients(patients)
     patients = await patientResource.search(birthdate='1976-06-06').fetch_all()
+    print(patients)
     printPatients(patients)
-    patients = await patientResource.search(address='Philadelphia').fetch_all()
-    printPatients(patients)
+    # patients = await patientResource.search(birthdate='1976-06-06').fetch_all()
+    # printPatients(patients)
+    # patients = await patientResource.search(address='Philadelphia').fetch_all()
+    # printPatients(patients)
 
 
 async def getSortedPatients(client):
@@ -107,6 +122,7 @@ def printPatients(patients):
 
 
 def printPatient(patient):
+    print(patient.get('extension'))
     print('{0} {1} {2} {3} {4} {5} {6}'.format(
         patient.get('id'),
         patient.get('meta'),

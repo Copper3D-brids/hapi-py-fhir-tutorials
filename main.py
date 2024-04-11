@@ -8,6 +8,8 @@ from appointment import do_appointment
 from encounter import do_encounter
 from imagingStudyOperator import operationImagingStudy
 from dukeunidata import operationDukeEHR
+from groupOperator import operationGroup
+from workflowOperator import operationWorkflow
 from utils import pprint
 
 async def initDataSite(client):
@@ -45,7 +47,13 @@ async def main():
     # await operationImagingStudy(client)
 
     #TODO 8: Duke UNi EHR
-    await operationDukeEHR(client)
+    # await operationDukeEHR(client)
+
+    #TODO 9: familar with group
+    # await operationGroup(client)
+
+    #TODO 10: work with workflow
+    await operationWorkflow(client)
 
     # patients = client.resources('Patient')
     # patients_count = await patients.count()

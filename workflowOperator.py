@@ -1,6 +1,7 @@
 from pathlib import Path
 import time
 import requests
+from .breast_workflow_data.data import WORKFLOW_RESULT, WORKFLOW_DESCRIPTION, PATIENT_INFOS
 
 """
 Workflow 1: 
@@ -33,10 +34,18 @@ Breast-dataset 1:
             - body temperature: 93.8 degF
             - identifier: sparc-patient-yyds-002-observation-002
             - ref: Patient 2
+Workflow process (Task):
+    - workflow process identifier: sparc-workflow-yyds-001-process-001
+    - workflow identifier: sparc-workflow-yyds-001 (focus)
+    - practitioner identifier: sparc-practitioner-yyds-001 (owner)
+    - patient identifier: sparc-patient-yyds-001 (requester)
+    - Observation:
+        - Distance
+            - identifier: sparc-workflow-yyds-001-process-001-result-001
+        - Size
+            - identifier: sparc-workflow-yyds-001-process-001-result-001
+    
 """
-
-
-
 
 
 async def operationWorkflow(client):
@@ -44,70 +53,38 @@ async def operationWorkflow(client):
     # await init(client)
     # TODO 2: Load measurements dataset
     # await ingress_measurements_dataset(client, "./sparc_fhir_breast_dataset/primary")
-
     # TODO 3: Execute workflow
+    await execute_workflow(
+        client,
+        workflow_id="sparc-workflow-yyds-001",
+        workflow_process_id="sparc-workflow-yyds-001-process-001",
+        practitioner_id="sparc-practitioner-yyds-001",
+        patient_id="sparc-patient-yyds-001",
+        result_info=WORKFLOW_RESULT)
+
     # search workflows
     # workflows = await search_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
     # print(workflows)
     # print(workflows[0]['action'])
 
-    # obs = await search_resource(client, identifier="sparc-patient-yyds-001-observation-001", resource="Observation")
-    # print(obs)
-    # for ob in obs:
-    #     print(ob['subject'])
-
-
-    print(await search_resource(client, identifier="sparc-patient-yyds-001", resource="Patient"))
-    p = await search_resources(client, "Patient")
-    print(p)
+    # print(await search_resource(client, identifier="sparc-patient-yyds-001", resource="Patient"))
+    # p = await search_resources(client, "Patient")
+    # print(p)
+    # o = await search_resources(client, 'Observation')
+    # print(o[0]['identifier'])
     # print(p[0].to_reference())
+
     # delete workflows
     # await delete_resources(client, identifier="sparc-workflow-yyds-001")
     # await delete_resources(client, identifier="sparc-practitioner-yyds-001")
     # await delete_resource(client, identifier="sparc-patient-yyds-002-observation-002", resource='Observation')
     # await delete_resources(client, "Observation")
     # await delete_resources(client, "Patient")
+    pass
 
 
 async def init(client):
-    await create_workflow(client, identifier="sparc-workflow-yyds-001", description={
-        'title': 'breast computational workflow one',
-        'type': 'workflow-definition',
-        'date': '2024-04-10',
-        'description': 'A computational workflow defines all actions of calculate the closest distance from tumour to nipple in breast research. It also will record the tumour size.',
-        'purpose': """
-                        # Purpose
-                        ## Record size
-                        - Record tumour size
-                        ## Calculate closest distance.
-                        - Closest distance between tumour and nipple
-                        - Closest distance between tumour and skin
-                        - Closest distance between tumour and ribcage
-                    """,
-        'author': [
-            {
-                'name': 'Prasad'
-            }
-        ],
-        "action": [
-            {
-                "id": "breast_workflow_action_01",
-                "title": "calculate closest distance from tumour to nipple",
-                "output": [{
-                    "type": "Observation",
-                    "profile": "http://hl7.org/fhir/us/mcode/StructureDefinition/mcode-tumor-size"
-                }]
-            },
-            {
-                "id": "breast_workflow_action_02",
-                "title": "calculate tumour size",
-                "output": [{
-                    "type": "Observation",
-                    "profile": "http://hl7.org/fhir/us/mcode/StructureDefinition/mcode-tumor-size"
-                }]
-            }
-        ]
-    }, version="1.0.0")
+    await create_workflow(client, identifier="sparc-workflow-yyds-001", description=WORKFLOW_DESCRIPTION, version="1.0.0")
 
     await createPractitioner(client, identifier="sparc-practitioner-yyds-001")
 
@@ -130,59 +107,123 @@ async def ingress_measurements_dataset(client, root):
     """
     dataset_root = Path(root)
     # patient_identifiers = [entry.name for entry in dataset_root.iterdir() if entry.is_dir()]
-    patient_infos = [
-        {
-            "givenname": "Aniyah",
-            'familyname': '',
-            "identifier": "sparc-patient-yyds-001",
-            "brithDate": "1994-04-11",
-            "Observation": [
-                {
-                    'identifier': "sparc-patient-yyds-001-observation-001",
-                    "loinc-code": "8310-5",
-                    'value': 96.8,
-                    'unit-code': 'degF'
-                },
-                {
-                    'identifier': "sparc-patient-yyds-001-observation-002",
-                    "loinc-code": "30525-0",
-                    'value': 30,
-                    'unit-code': 'years'
-                }
-            ]
-        },
-        {
-            "givenname": "Linman",
-            "familyname": "Zhang",
-            "identifier": "sparc-patient-yyds-002",
-            "brithDate": "1993-04-10",
-            "Observation": [
-                {
-                    'identifier': "sparc-patient-yyds-002-observation-001",
-                    "loinc-code": "8310-5",
-                    'value': 93.8,
-                    'unit-code': 'degF'
-                },
-                {
-                    'identifier': "sparc-patient-yyds-002-observation-002",
-                    "loinc-code": "30525-0",
-                    'value': 31,
-                    'unit-code': 'years'
-                }
-            ]
-        }
-    ]
     # Create Patients
     # Store Patient's measurement data to Observation
 
-    for patient_info in patient_infos:
+    for patient_info in PATIENT_INFOS:
         await create_patient(client, patient_info)
-        # for ob_info in patient_info['Observation']:
-        #     await create_patient_observation(client, patient_info['identifier'], ob_info)
+        for ob_info in patient_info['Observation']:
+            await create_patient_observation(client, patient_info['identifier'], ob_info)
 
 
-async def execute_workflow(client, workflow_id, workflow_process_id, practitoner_id):
-    pass
+async def execute_workflow(client, workflow_id, workflow_process_id, practitioner_id, patient_id, result_info):
+    workflows = await search_resource(client, identifier=workflow_id, resource='PlanDefinition')
+    practitioners = await search_resource(client, identifier=practitioner_id, resource='Practitioner')
+    patients = await search_resource(client, identifier=patient_id, resource='Patient')
+    workflow = workflows[0]
+    practitioner = practitioners[0]
+    patient = patients[0]
+
+    result = await is_resource_exist(client, workflow_process_id, "Task")
+    if result:
+        return
+
+    new_task = client.resource('Task')
+
+    new_task['identifier'] = [
+        {
+            "use": "official",
+            "system": "http://sparc.sds.dataset",
+            "value": workflow_process_id
+        }
+    ]
+
+    new_task['focus'] = workflow.to_reference()
+    new_task['owner'] = practitioner.to_reference()
+    new_task['requester'] = patient.to_reference()
+    new_task['lastModified'] = '2024-04-12T00:00:00Z'
+
+    outputs = []
+
+    for result in result_info:
+        check = await is_resource_exist(client, result['identifier'], "Observation")
+        if check:
+            return
+
+        new_observation = client.resource('Observation')
+
+        new_observation['identifier'] = [
+            {
+                "use": "official",
+                "system": "http://sparc.sds.dataset",
+                "value": result['identifier']
+            },
+            {
+                "use": "official",
+                "system": "http://sparc.sds.dataset",
+                "value": workflow_process_id
+            }
+        ]
+        new_observation['code'] = {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": result['loinc-code'],
+                }
+            ]
+        },
+        new_observation['method'] = {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": result['method-code'],
+                    "display": "Gross examination and sampling of tissue specimen (procedure)"
+                }
+            ]
+        }
+        new_observation['effectiveDateTime'] = "2024-04-12T00:00:00Z"
+        new_observation['subject'] = patient.to_reference()
+        new_observation['component'] = []
+        for component in result['component']:
+            temp_output = {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://ABI-breast-workflow",
+                            "code": component['loinc-code'],
+                            "display": component['display']
+                        },
+                    ]},
+                "value": {
+                    "value": component['value'],
+                    "system": "http://unitsofmeasure.org",
+                    "code": component['unit-code']
+                }
+            }
+            outputs.append(temp_output)
+            component_temp = {
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://ABI-breast-workflow",
+                            "code": component['loinc-code'],
+                            "display": component['display']
+                        },
+                    ]
+                },
+                "valueQuantity": {
+                    "value": component['value'],
+                    "system": "http://unitsofmeasure.org",
+                    "code": component['unit-code']
+                }
+            }
+            new_observation['component'].append(component_temp)
+
+            await new_observation.save()
+
+    new_task['output'] = outputs
+
+    await new_task.save()
 
 
 async def createPractitioner(client, identifier):
@@ -245,10 +286,7 @@ async def create_patient_observation(client, patient_identifier, info):
     if result:
         return
 
-    print(patient_identifier)
     patients = await search_resource(client, patient_identifier, 'Patient')
-    print(patients)
-
     patient = patients[0]
 
     new_observation = client.resource(
@@ -278,6 +316,10 @@ async def create_patient_observation(client, patient_identifier, info):
         'value': info['value'],
         'code': info['unit-code']
     }
+
+    # "subject": {
+    #                     "reference": "Patient/102"
+    #                 }
 
     new_observation['subject'] = patient.to_reference()
     await new_observation.save()
@@ -383,7 +425,6 @@ def test():
         print('响应内容：', response1.text)
     else:
         print('请求失败，状态码：', response1.status_code)
-
 
     #
     # # 检查响应状态码

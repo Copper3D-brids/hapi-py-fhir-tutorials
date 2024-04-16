@@ -1,6 +1,7 @@
 WORKFLOW_RESULT = [
     {
         'identifier': 'sparc-workflow-yyds-001-process-001-result-001',
+        "title": "Result of closest distance",
         "loinc-code": "Closest distance",
         "method-code": "breast cancer workflow 1 code xxx",
         "component": [
@@ -27,11 +28,55 @@ WORKFLOW_RESULT = [
     },
     {
         'identifier': 'sparc-workflow-yyds-001-process-001-result-002',
+        "title": "Result of tumour size",
         "loinc-code": "21889-1",
         "method-code": "787377000",
         "component": [{
             "loinc-code": "33728-7",
             'value': 1.5,
+            'unit-code': 'cm',
+            'display': 'Size.maximum dimension in Tumor'
+        }],
+
+    }
+]
+
+WORKFLOW_RESULT_LINMAN = [
+    {
+        'identifier': 'sparc-workflow-yyds-001-process-002-result-001',
+        "title": "Result of closest distance",
+        "loinc-code": "Closest distance",
+        "method-code": "breast cancer workflow 1 code xxx",
+        "component": [
+            {
+                "loinc-code": "tumour-nipple",
+                'value': 2.5,
+                'unit-code': 'cm',
+                'display': 'distance between tumour and nipple'
+            },
+            {
+                "loinc-code": "tumour-ribcage",
+                'value': 1,
+                'unit-code': 'cm',
+                'display': 'distance between tumour and ribcage'
+            },
+            {
+                "loinc-code": "tumour-skin",
+                'value': 1.5,
+                'unit-code': 'cm',
+                'display': 'distance between tumour and skin'
+            }
+        ],
+
+    },
+    {
+        'identifier': 'sparc-workflow-yyds-001-process-002-result-002',
+        "title": "Result of tumour size",
+        "loinc-code": "21889-1",
+        "method-code": "787377000",
+        "component": [{
+            "loinc-code": "33728-7",
+            'value': 2.5,
             'unit-code': 'cm',
             'display': 'Size.maximum dimension in Tumor'
         }],

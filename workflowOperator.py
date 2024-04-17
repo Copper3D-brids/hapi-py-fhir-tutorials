@@ -63,107 +63,113 @@ Workflow process (Task) - Linman:
 
 async def operationWorkflow(client):
     # TODO 1: create workflow
-    # await init(client)
+    await init(client)
     # TODO 2: Load measurements dataset
-    # await ingress_measurements_dataset(client, "./sparc_fhir_breast_dataset/primary")
+    await import_measurements_dataset(client, "./sparc_fhir_breast_dataset/primary")
     # # TODO 3: Execute workflow process for Patient Aniyah
-    # await execute_workflow(
-    #     client,
-    #     workflow_id="sparc-workflow-yyds-001",
-    #     workflow_process_id="sparc-workflow-yyds-001-process-001",
-    #     practitioner_id="sparc-practitioner-yyds-001",
-    #     patient_id="sparc-patient-yyds-001",
-    # )
-    #
-    # await create_result_observations(client,
-    #                                  workflow_process_id="sparc-workflow-yyds-001-process-001",
-    #                                  result_info=WORKFLOW_RESULT)
-    #
-    # await create_composition(client,
-    #                          composition_identifier="sparc-workflow-yyds-001-process-001-composition-001",
-    #                          workflow_process_id="sparc-workflow-yyds-001-process-001",
-    #                          patient_id="sparc-patient-yyds-001",
-    #                          result_info=WORKFLOW_RESULT
-    #                          )
-    # #
-    # # # TODO 3.1: Execute workflow process for Patient Linman
-    # await execute_workflow(
-    #     client,
-    #     workflow_id="sparc-workflow-yyds-001",
-    #     workflow_process_id="sparc-workflow-yyds-001-process-002",
-    #     practitioner_id="sparc-practitioner-yyds-001",
-    #     patient_id="sparc-patient-yyds-002",
-    # )
-    #
-    # await create_result_observations(client,
-    #                                  workflow_process_id="sparc-workflow-yyds-001-process-002",
-    #                                  result_info=WORKFLOW_RESULT_LINMAN)
-    #
-    # await create_composition(client,
-    #                          composition_identifier="sparc-workflow-yyds-001-process-002-composition-001",
-    #                          workflow_process_id="sparc-workflow-yyds-001-process-002",
-    #                          patient_id="sparc-patient-yyds-002",
-    #                          result_info=WORKFLOW_RESULT_LINMAN
-    #                          )
-    # print()
-    # print("*************************************** Search Results ************************************************")
-    #
-    # # TODO 4.1 Find all workflow process of the workflow: sparc-workflow-yyds-001
-    # workflow = await search_single_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
-    # tasks = await client.resources('Task').search(focus=workflow.to_reference()).fetch_all()
-    # print("TODO 4.1: Search all workflow process of the workflow: sparc-workflow-yyds-001")
-    # print(tasks)
-    # print()
-    # print("***************************************************************************************")
-    #
-    # # TODO 4.2  find composition of the workflow process: sparc-workflow-yyds-001-process-002
-    # workflow_process = await search_single_resource(client, identifier="sparc-workflow-yyds-001-process-002",
-    #                                                 resource="Task")
-    # compositions = await client.resources('Composition').search(subject=workflow_process.to_reference()).fetch_all()
-    # print(f"TODO 4.2: All compositions of workflow process {workflow_process.to_reference()}")
-    # print(compositions)
-    # print()
-    # print("***************************************************************************************")
-    #
-    # # TODO 4.3  Find Researcher:sparc-practitioner-yyds-001 all workflow process of workflow: sparc-workflow-yyds-001
-    # workflow = await search_single_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
-    # researcher = await search_single_resource(client, identifier="sparc-practitioner-yyds-001", resource='Practitioner')
-    # workflow_processes = await client.resources('Task').search(focus=workflow.to_reference(),
-    #                                                            owner=researcher.to_reference()).fetch_all()
-    # print(
-    #     f"TODO 4.3: All workflow process of researcher sparc-practitioner-yyds-001 related to workflow: sparc-workflow-yyds-001")
-    # print(workflow_processes)
-    # print()
-    # print("***************************************************************************************")
-    #
-    # # TODO 4.4 Get the patient: sparc-patient-yyds-002 all workflow process of Researcher:sparc-practitioner-yyds-001 and workflow: sparc-workflow-yyds-001
-    # workflow = await search_single_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
-    # researcher = await search_single_resource(client, identifier="sparc-practitioner-yyds-001", resource='Practitioner')
-    # patient = await search_single_resource(client, identifier="sparc-patient-yyds-002", resource="Patient")
-    # workflow_processes = await client.resources('Task').search(focus=workflow.to_reference(),
-    #                                                            owner=researcher.to_reference(),
-    #                                                            requester=patient.to_reference()).fetch_all()
-    # print(
-    #     f"TODO 4.4: Get the patient: sparc-patient-yyds-002 all workflow process of Researcher:sparc-practitioner-yyds-001 and workflow: sparc-workflow-yyds-001")
-    # print(workflow_processes)
-    # print()
-    # print("***************************************************************************************")
-    #
-    # # TODO 4.5 Get Patient Linman: sparc-patient-yyds-002 all result observation
-    # linman = await search_single_resource(client, identifier="sparc-patient-yyds-002", resource="Patient")
-    # workflow_processes = await client.resources('Task').search(requester=linman.to_reference()).fetch_all()
-    # for process in workflow_processes:
-    #     composition = await client.resources("Composition").search(subject=process.to_reference()).first()
-    #     for section in composition['section']:
-    #         for ob in section['entry']:
-    #             print("TODO 4.5: the observation result of linman:")
-    #             b = await ob.to_resource()
-    #             print(b['identifier'])
-    #
-    # print()
-    # print("***************************************************************************************")
+    await execute_workflow(
+        client,
+        workflow_id="sparc-workflow-yyds-001",
+        workflow_process_id="sparc-workflow-yyds-001-process-001",
+        practitioner_id="sparc-practitioner-yyds-001",
+        patient_id="sparc-patient-yyds-001",
+    )
 
-    await delete_workflow_process(client, "sparc-workflow-yyds-001-process-001")
+
+    # await delete_resources(client, "Composition")
+    # await delete_resources(client, "Observation")
+
+    await create_result_observations(client,
+                                     workflow_process_id="sparc-workflow-yyds-001-process-001",
+                                     result_info=WORKFLOW_RESULT)
+
+    await create_composition(client,
+                             composition_identifier="sparc-workflow-yyds-001-process-001-composition-001",
+                             workflow_process_id="sparc-workflow-yyds-001-process-001",
+                             patient_id="sparc-patient-yyds-001",
+                             result_info=WORKFLOW_RESULT
+                             )
+
+    # TODO 3.1: Execute workflow process for Patient Linman
+    await execute_workflow(
+        client,
+        workflow_id="sparc-workflow-yyds-001",
+        workflow_process_id="sparc-workflow-yyds-001-process-002",
+        practitioner_id="sparc-practitioner-yyds-001",
+        patient_id="sparc-patient-yyds-002",
+    )
+
+    await create_result_observations(client,
+                                     workflow_process_id="sparc-workflow-yyds-001-process-002",
+                                     result_info=WORKFLOW_RESULT_LINMAN)
+
+    await create_composition(client,
+                             composition_identifier="sparc-workflow-yyds-001-process-002-composition-001",
+                             workflow_process_id="sparc-workflow-yyds-001-process-002",
+                             patient_id="sparc-patient-yyds-002",
+                             result_info=WORKFLOW_RESULT_LINMAN
+                             )
+    print()
+    print("*************************************** Search Results ************************************************")
+
+    # TODO 4.1 Find all workflow process of the workflow: sparc-workflow-yyds-001
+    workflow = await search_single_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
+    tasks = await client.resources('Task').search(focus=workflow.to_reference()).fetch_all()
+    print("TODO 4.1: Search all workflow process of the workflow: sparc-workflow-yyds-001")
+    print(tasks)
+    print()
+    print("***************************************************************************************")
+
+    # TODO 4.2  find composition of the workflow process: sparc-workflow-yyds-001-process-002
+    workflow_process = await search_single_resource(client, identifier="sparc-workflow-yyds-001-process-002",
+                                                    resource="Task")
+    compositions = await client.resources('Composition').search(subject=workflow_process.to_reference()).fetch_all()
+    print(f"TODO 4.2: All compositions of workflow process {workflow_process.to_reference()}")
+    print(compositions)
+    print()
+    print("***************************************************************************************")
+
+    # TODO 4.3  Find Researcher:sparc-practitioner-yyds-001 all workflow process of workflow: sparc-workflow-yyds-001
+    workflow = await search_single_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
+    researcher = await search_single_resource(client, identifier="sparc-practitioner-yyds-001", resource='Practitioner')
+    workflow_processes = await client.resources('Task').search(focus=workflow.to_reference(),
+                                                               owner=researcher.to_reference()).fetch_all()
+    print(
+        f"TODO 4.3: All workflow process of researcher sparc-practitioner-yyds-001 related to workflow: sparc-workflow-yyds-001")
+    print(workflow_processes)
+    print()
+    print("***************************************************************************************")
+
+    # TODO 4.4 Get the patient: sparc-patient-yyds-002 all workflow process of Researcher:sparc-practitioner-yyds-001 and workflow: sparc-workflow-yyds-001
+    workflow = await search_single_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
+    researcher = await search_single_resource(client, identifier="sparc-practitioner-yyds-001", resource='Practitioner')
+    patient = await search_single_resource(client, identifier="sparc-patient-yyds-002", resource="Patient")
+    workflow_processes = await client.resources('Task').search(focus=workflow.to_reference(),
+                                                               owner=researcher.to_reference(),
+                                                               requester=patient.to_reference()).fetch_all()
+    print(
+        f"TODO 4.4: Get the patient: sparc-patient-yyds-002 all workflow process of Researcher:sparc-practitioner-yyds-001 and workflow: sparc-workflow-yyds-001")
+    print(workflow_processes)
+    print()
+    print("***************************************************************************************")
+
+    # TODO 4.5 Get Patient Linman: sparc-patient-yyds-002 all result observation
+    linman = await search_single_resource(client, identifier="sparc-patient-yyds-002", resource="Patient")
+    workflow_processes = await client.resources('Task').search(requester=linman.to_reference()).fetch_all()
+    for process in workflow_processes:
+        composition = await client.resources("Composition").search(subject=process.to_reference()).first()
+        for section in composition['section']:
+            for ob in section['entry']:
+                print("TODO 4.5: the observation result of linman:")
+                b = await ob.to_resource()
+                print(b['identifier'])
+
+    print()
+    print("***************************************************************************************")
+
+    # await clear_all_resources(client)
+    # await delete_practitioner(client, "sparc-practitioner-yyds-001")
+    # await delete_workflow_process(client, "sparc-workflow-yyds-001-process-001")
 
     # cs = await search_resource(client, "sparc-workflow-yyds-001-process-002-composition-001", "Composition")
     #
@@ -198,11 +204,10 @@ async def operationWorkflow(client):
 async def init(client):
     await create_workflow(client, identifier="sparc-workflow-yyds-001", description=WORKFLOW_DESCRIPTION,
                           version="1.0.0")
-
     await create_practitioner(client, identifier="sparc-practitioner-yyds-001")
 
 
-async def ingress_measurements_dataset(client, root):
+async def import_measurements_dataset(client, root):
     """
         Assume the measurements data for these patients are body temperature and age
         Aniyah:
@@ -564,8 +569,65 @@ async def delete_resource(client, identifier, resource):
         await resource.delete()
 
 
+async def clear_all_resources(client):
+    await delete_resources(client, "ImagingStudy")
+    await delete_resources(client, "Composition")
+    await delete_resources(client, "Observation")
+    await delete_resources(client, "Task")
+    await delete_resources(client, "Patient")
+    await delete_resources(client, "PlanDefinition")
+    await delete_resources(client, "Practitioner")
+
+
+async def delete_practitioner(client, identifier):
+    practitioner = await search_single_resource(client, identifier, "Practitioner")
+    patients = await client.resources("Patient").search(general_practitioner=practitioner.to_reference()).fetch_all()
+
+    for patient in patients:
+        new_gps = []
+        for gp in patient["generalPractitioner"]:
+            if gp.reference == practitioner.to_reference().reference:
+                continue
+            else:
+                new_gps.append(gp)
+
+        if len(new_gps) > 0:
+            patient["generalPractitioner"] = new_gps
+            await patient.save()
+        else:
+            identifier_patient = get_resource_identifier(patient, "http://sparc.sds.dataset")
+            await delete_patient(client, identifier_patient)
+    await practitioner.delete()
+
+
+async def delete_patient(client, identifier):
+    patient = await search_single_resource(client, identifier, "Patient")
+    workflow_processes = await client.resources("Task").search(requester=patient.to_reference()).fetch_all()
+    primary_observations = await client.resources("Observation").search(subject=patient.to_reference()).fetch_all()
+    primary_imagingstudies = await client.resources("ImagingStudy").search(subject=patient.to_reference()).fetch_all()
+
+    for ob in primary_observations:
+        await ob.delete()
+    for isy in primary_imagingstudies:
+        await isy.delete()
+
+    await delete_workflow_processes(client, workflow_processes)
+
+    await patient.delete()
+
+
 async def delete_workflow(client, identifier):
-    pass
+    workflow = await search_single_resource(client, identifier, "PlanDefinition")
+    workflow_processes = await client.resources("Task").search(focus=workflow.to_reference()).fetch_all()
+
+    await delete_workflow_processes(client, workflow_processes)
+    await workflow.delete()
+
+
+async def delete_workflow_processes(client, workflow_processes):
+    for process in workflow_processes:
+        identifier_process = get_resource_identifier(process, "http://sparc.sds.dataset")
+        await delete_workflow_process(client, identifier=identifier_process)
 
 
 async def delete_workflow_process(client, identifier):
@@ -573,7 +635,9 @@ async def delete_workflow_process(client, identifier):
     compositions = await client.resources('Composition').search(subject=workflow_process.to_reference()).fetch_all()
     for composition in compositions:
         identifier_composition = get_resource_identifier(composition, "http://sparc.sds.dataset")
-        print(identifier_composition)
+        await delete_composition(client, identifier=identifier_composition)
+
+    await workflow_process.delete()
 
 
 async def delete_composition(client, identifier):

@@ -425,7 +425,6 @@ async def create_practitioner(client, identifier):
             'given': ['John'],
             'family': 'Thompson',
             'use': 'official',
-            'prefix': ['Mr. '],
         }
     ]
 

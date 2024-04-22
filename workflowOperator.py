@@ -63,52 +63,52 @@ Workflow process (Task) - Linman:
 
 async def operationWorkflow(client):
     # TODO 1: create workflow
-    await init(client)
+    # await init(client)
     # TODO 2: Load measurements dataset
-    await import_measurements_dataset(client, "./sparc_fhir_breast_dataset/primary")
-    # # TODO 3: Execute workflow process for Patient Aniyah
-    await execute_workflow(
-        client,
-        workflow_id="sparc-workflow-yyds-001",
-        workflow_process_id="sparc-workflow-yyds-001-process-001",
-        practitioner_id="sparc-practitioner-yyds-001",
-        patient_id="sparc-patient-yyds-001",
-    )
+    # await import_measurements_dataset(client, "./sparc_fhir_breast_dataset/primary")
+    # TODO 3: Execute workflow process for Patient Aniyah
+    # await execute_workflow(
+    #     client,
+    #     workflow_id="sparc-workflow-yyds-001",
+    #     workflow_process_id="sparc-workflow-yyds-001-process-001",
+    #     practitioner_id="sparc-practitioner-yyds-001",
+    #     patient_id="sparc-patient-yyds-001",
+    # )
 
 
     # await delete_resources(client, "Composition")
     # await delete_resources(client, "Observation")
 
-    await create_result_observations(client,
-                                     workflow_process_id="sparc-workflow-yyds-001-process-001",
-                                     result_info=WORKFLOW_RESULT)
-
-    await create_composition(client,
-                             composition_identifier="sparc-workflow-yyds-001-process-001-composition-001",
-                             workflow_process_id="sparc-workflow-yyds-001-process-001",
-                             patient_id="sparc-patient-yyds-001",
-                             result_info=WORKFLOW_RESULT
-                             )
+    # await create_result_observations(client,
+    #                                  workflow_process_id="sparc-workflow-yyds-001-process-001",
+    #                                  result_info=WORKFLOW_RESULT)
+    #
+    # await create_composition(client,
+    #                          composition_identifier="sparc-workflow-yyds-001-process-001-composition-001",
+    #                          workflow_process_id="sparc-workflow-yyds-001-process-001",
+    #                          patient_id="sparc-patient-yyds-001",
+    #                          result_info=WORKFLOW_RESULT
+    #                          )
 
     # TODO 3.1: Execute workflow process for Patient Linman
-    await execute_workflow(
-        client,
-        workflow_id="sparc-workflow-yyds-001",
-        workflow_process_id="sparc-workflow-yyds-001-process-002",
-        practitioner_id="sparc-practitioner-yyds-001",
-        patient_id="sparc-patient-yyds-002",
-    )
-
-    await create_result_observations(client,
-                                     workflow_process_id="sparc-workflow-yyds-001-process-002",
-                                     result_info=WORKFLOW_RESULT_LINMAN)
-
-    await create_composition(client,
-                             composition_identifier="sparc-workflow-yyds-001-process-002-composition-001",
-                             workflow_process_id="sparc-workflow-yyds-001-process-002",
-                             patient_id="sparc-patient-yyds-002",
-                             result_info=WORKFLOW_RESULT_LINMAN
-                             )
+    # await execute_workflow(
+    #     client,
+    #     workflow_id="sparc-workflow-yyds-001",
+    #     workflow_process_id="sparc-workflow-yyds-001-process-002",
+    #     practitioner_id="sparc-practitioner-yyds-001",
+    #     patient_id="sparc-patient-yyds-002",
+    # )
+    #
+    # await create_result_observations(client,
+    #                                  workflow_process_id="sparc-workflow-yyds-001-process-002",
+    #                                  result_info=WORKFLOW_RESULT_LINMAN)
+    #
+    # await create_composition(client,
+    #                          composition_identifier="sparc-workflow-yyds-001-process-002-composition-001",
+    #                          workflow_process_id="sparc-workflow-yyds-001-process-002",
+    #                          patient_id="sparc-patient-yyds-002",
+    #                          result_info=WORKFLOW_RESULT_LINMAN
+    #                          )
     print()
     print("*************************************** Search Results ************************************************")
 
@@ -167,31 +167,20 @@ async def operationWorkflow(client):
     print()
     print("***************************************************************************************")
 
+    # Delete Workflow, Practitioner
     # await clear_all_resources(client)
     # await delete_practitioner(client, "sparc-practitioner-yyds-001")
     # await delete_workflow_process(client, "sparc-workflow-yyds-001-process-001")
+    # await delete_workflow(client, "sparc-workflow-yyds-001")
 
-    # cs = await search_resource(client, "sparc-workflow-yyds-001-process-002-composition-001", "Composition")
-    #
-    # c = cs[0]
-    #
-    # a = c['section'][0]['entry'][0]
-    # ob = await a.to_resource()
-    # print(ob['identifier'])
+    # Update
+    cs = await search_resource(client, "sparc-workflow-yyds-001-process-002-composition-001", "Composition")
+    c = cs[0]
+    print(c)
+    # c['title'] = "Task: sparc-workflow-yyds-001-process-002 results -- test"
+    # await c.save()
 
-    # search workflows
-    # workflows = await search_resource(client, identifier="sparc-workflow-yyds-001", resource="PlanDefinition")
-    # print(workflows)
-    # print(workflows[0]['action'])
-
-    # print(await search_resource(client, identifier="sparc-patient-yyds-001", resource="Patient"))
-    # p = await search_resources(client, "Patient")
-    # print(p)
-    # o = await search_resources(client, 'Observation')
-    # print(o[0]['identifier'])
-    # print(p[0].to_reference())
-
-    # delete workflows
+    # delete resources
     # await delete_resources(client, identifier="sparc-workflow-yyds-001")
     # await delete_resources(client, identifier="sparc-practitioner-yyds-001")
     # await delete_resource(client, identifier="sparc-patient-yyds-002-observation-002", resource='Observation')
@@ -689,8 +678,8 @@ def test():
     }
 
     headers = {
-        'Content-Type': 'application/json',  # 指定请求内容类型为 JSON
-        'Authorization': 'Bearer YOUR_TOKEN',  # 添加授权头信息
+        'Content-Type': 'application/json',  # set request content type to: JSON
+        'Authorization': 'Bearer YOUR_TOKEN',  # Add Authorization info
         'Accept': '*/*'
     }
 
@@ -699,16 +688,7 @@ def test():
 
     response1 = requests.get("http://localhost:8080/fhir/Patient", headers=headers)
     if response1.status_code == 200:
-        print('请求成功！')
-        print('响应内容：', response1.text)
+        print('Request successfully!')
+        print('Response content:', response1.text)
     else:
-        print('请求失败，状态码：', response1.status_code)
-
-    #
-    # # 检查响应状态码
-    # if response.status_code == 200:
-    #     print('请求成功！')
-    #     print('响应内容：', response.text)
-    # else:
-    #     print('请求失败，状态码：', response.status_code)
-    #     print(response.text)
+        print('Request failed, the status code:', response1.status_code)

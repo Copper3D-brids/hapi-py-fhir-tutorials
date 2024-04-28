@@ -1,5 +1,5 @@
 from pathlib import Path
-import time
+from initialize import import_dataset
 import requests
 from breast_workflow_data.data import WORKFLOW_RESULT, WORKFLOW_DESCRIPTION, PATIENT_INFOS, WORKFLOW_RESULT_LINMAN
 
@@ -67,48 +67,79 @@ async def operationWorkflow(client):
     # TODO 2: Load measurements dataset
     # await import_measurements_dataset(client, "./sparc_fhir_breast_dataset/primary")
     # TODO 3: Execute workflow process for Patient Aniyah
-    # await execute_workflow(
-    #     client,
-    #     workflow_id="sparc-workflow-yyds-001",
-    #     workflow_process_id="sparc-workflow-yyds-001-process-001",
-    #     practitioner_id="sparc-practitioner-yyds-001",
-    #     patient_id="sparc-patient-yyds-001",
-    # )
-
-
-    # await delete_resources(client, "Composition")
-    # await delete_resources(client, "Observation")
-
-    # await create_result_observations(client,
-    #                                  workflow_process_id="sparc-workflow-yyds-001-process-001",
-    #                                  result_info=WORKFLOW_RESULT)
-    #
-    # await create_composition(client,
-    #                          composition_identifier="sparc-workflow-yyds-001-process-001-composition-001",
-    #                          workflow_process_id="sparc-workflow-yyds-001-process-001",
-    #                          patient_id="sparc-patient-yyds-001",
-    #                          result_info=WORKFLOW_RESULT
-    #                          )
+    # await execute_workflow_process_aniyah(client)
 
     # TODO 3.1: Execute workflow process for Patient Linman
-    # await execute_workflow(
-    #     client,
-    #     workflow_id="sparc-workflow-yyds-001",
-    #     workflow_process_id="sparc-workflow-yyds-001-process-002",
-    #     practitioner_id="sparc-practitioner-yyds-001",
-    #     patient_id="sparc-patient-yyds-002",
-    # )
-    #
-    # await create_result_observations(client,
-    #                                  workflow_process_id="sparc-workflow-yyds-001-process-002",
-    #                                  result_info=WORKFLOW_RESULT_LINMAN)
-    #
-    # await create_composition(client,
-    #                          composition_identifier="sparc-workflow-yyds-001-process-002-composition-001",
-    #                          workflow_process_id="sparc-workflow-yyds-001-process-002",
-    #                          patient_id="sparc-patient-yyds-002",
-    #                          result_info=WORKFLOW_RESULT_LINMAN
-    #                          )
+    # await execute_workflow_process_linman(client)
+
+    # TODO Search
+    # await search(client)
+
+    # TODO Delete Workflow, Practitioner
+    # await delete(client)
+
+    # TODO Load Synthetic data
+    # await load_synthetic_data(client)
+
+    pass
+
+
+async def load_synthetic_data(client):
+    # dataset_path = './dataset_2/config'
+    # dataset_path = './dataset_2/failed'
+    # TODO: download the FHIR R4 dataset from synthea website to the dataset folder.
+    dataset_path_config = './dataset_3/config'
+    dataset_path_patients = './dataset_3/patients'
+    await import_dataset(client, dataset_path_config)
+    await import_dataset(client, dataset_path_patients)
+
+
+async def execute_workflow_process_aniyah(client):
+    await execute_workflow(
+        client,
+        workflow_id="sparc-workflow-yyds-001",
+        workflow_process_id="sparc-workflow-yyds-001-process-001",
+        practitioner_id="sparc-practitioner-yyds-001",
+        patient_id="sparc-patient-yyds-001",
+    )
+
+    await delete_resources(client, "Composition")
+    await delete_resources(client, "Observation")
+
+    await create_result_observations(client,
+                                     workflow_process_id="sparc-workflow-yyds-001-process-001",
+                                     result_info=WORKFLOW_RESULT)
+
+    await create_composition(client,
+                             composition_identifier="sparc-workflow-yyds-001-process-001-composition-001",
+                             workflow_process_id="sparc-workflow-yyds-001-process-001",
+                             patient_id="sparc-patient-yyds-001",
+                             result_info=WORKFLOW_RESULT
+                             )
+
+
+async def execute_workflow_process_linman(client):
+    await execute_workflow(
+        client,
+        workflow_id="sparc-workflow-yyds-001",
+        workflow_process_id="sparc-workflow-yyds-001-process-002",
+        practitioner_id="sparc-practitioner-yyds-001",
+        patient_id="sparc-patient-yyds-002",
+    )
+
+    await create_result_observations(client,
+                                     workflow_process_id="sparc-workflow-yyds-001-process-002",
+                                     result_info=WORKFLOW_RESULT_LINMAN)
+
+    await create_composition(client,
+                             composition_identifier="sparc-workflow-yyds-001-process-002-composition-001",
+                             workflow_process_id="sparc-workflow-yyds-001-process-002",
+                             patient_id="sparc-patient-yyds-002",
+                             result_info=WORKFLOW_RESULT_LINMAN
+                             )
+
+
+async def search(client):
     print()
     print("*************************************** Search Results ************************************************")
 
@@ -167,27 +198,12 @@ async def operationWorkflow(client):
     print()
     print("***************************************************************************************")
 
-    # Delete Workflow, Practitioner
+
+async def delete(client):
     # await clear_all_resources(client)
     # await delete_practitioner(client, "sparc-practitioner-yyds-001")
     # await delete_workflow_process(client, "sparc-workflow-yyds-001-process-001")
-    # await delete_workflow(client, "sparc-workflow-yyds-001")
-
-    # Update
-    cs = await search_resource(client, "sparc-workflow-yyds-001-process-002-composition-001", "Composition")
-    c = cs[0]
-    print(c)
-    # c['title'] = "Task: sparc-workflow-yyds-001-process-002 results -- test"
-    # await c.save()
-
-    # delete resources
-    # await delete_resources(client, identifier="sparc-workflow-yyds-001")
-    # await delete_resources(client, identifier="sparc-practitioner-yyds-001")
-    # await delete_resource(client, identifier="sparc-patient-yyds-002-observation-002", resource='Observation')
-    # await delete_resources(client, "Observation")
-    # await delete_resources(client, "Task")
-    # await delete_resources(client, "Composition")
-    pass
+    await delete_workflow(client, "sparc-workflow-yyds-001")
 
 
 async def init(client):

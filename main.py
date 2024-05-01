@@ -11,6 +11,7 @@ from dukeunidata import operationDukeEHR
 from groupOperator import operationGroup
 from workflowOperator import operationWorkflow
 from utils import pprint
+from test import test
 
 async def initDataSite(client):
     # dataset_path = './dataset_2/config'
@@ -55,6 +56,7 @@ async def main():
     #TODO 10: work with workflow
     await operationWorkflow(client)
 
+    # await test(client)
     # patients = client.resources('Patient')
     # patients_count = await patients.count()
     # print(patients_count)

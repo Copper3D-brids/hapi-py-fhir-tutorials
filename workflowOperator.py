@@ -79,7 +79,10 @@ async def operationWorkflow(client):
     # await delete(client)
 
     # TODO Load Synthetic data
-    # await load_synthetic_data(client)
+    await load_synthetic_data(client)
+
+    # TODO search Synthetic data
+    # await search_synthetic_patient(client)
 
     pass
 
@@ -198,6 +201,48 @@ async def search(client):
     print()
     print("***************************************************************************************")
 
+
+async def search_synthetic_patient(client):
+    print()
+    print(
+        "*********************************** Search Synthetic Patients Results *******************************************")
+
+    synthetic_patient = await search_single_resource(client, identifier="c62a70c2-87e5-90e2-ef04-7b67578a8a01",
+                                                     resource="Patient")
+    print(synthetic_patient['name'])
+
+    print()
+    print(
+        "*********************************** Search Synthetic Encounter Results *******************************************")
+    # resources = client.resources('Encounter')
+    count = await client.resources('Encounter').search(
+        subject=synthetic_patient.to_reference()).count()
+    print(count)
+
+    synthetic_encounters = await client.resources('Encounter').search(
+        subject=synthetic_patient.to_reference()).limit(count).fetch()
+
+    # first_synthetic_encounter = await client.resources('Encounter').search(
+    #     subject=synthetic_patient.to_reference()).limit(count).first()
+
+    # print(first_synthetic_encounter.to_reference())
+
+    # for e in synthetic_encounters:
+    #     print(e['period'])
+
+    obs_count = await client.resources('Observation').search(
+        subject=synthetic_patient.to_reference()).count()
+    print(obs_count)
+
+    # find all observations related to this encounter
+    synthetic_encounter = synthetic_encounters[20]
+    print(synthetic_encounter)
+    count = await client.resources('Observation').search(
+        encounter=synthetic_encounter.to_reference()).count()
+    print(count)
+    observations = await client.resources('Observation').search(
+        encounter=synthetic_encounter.to_reference()).limit(count).fetch()
+    print(observations)
 
 async def delete(client):
     # await clear_all_resources(client)

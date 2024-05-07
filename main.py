@@ -10,8 +10,9 @@ from imagingStudyOperator import operationImagingStudy
 from dukeunidata import operationDukeEHR
 from groupOperator import operationGroup
 from workflowOperator import operationWorkflow
+from synthetic_workflow import operationSyntheticWorkflow
 from utils import pprint
-from test import test
+from test import test, test2
 
 async def initDataSite(client):
     # dataset_path = './dataset_2/config'
@@ -54,9 +55,12 @@ async def main():
     # await operationGroup(client)
 
     #TODO 10: work with workflow
-    await operationWorkflow(client)
+    # await operationWorkflow(client)
 
-    # await test(client)
+    # TODO 11: work with synthetic workflow
+    await operationSyntheticWorkflow()
+
+    # await test2(client)
     # patients = client.resources('Patient')
     # patients_count = await patients.count()
     # print(patients_count)

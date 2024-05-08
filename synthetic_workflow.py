@@ -175,7 +175,23 @@ async def search_synthetic_patient():
     for p in synthetic_patients:
         print(p['gender'])
 
+    patient_to_save = create_resource('Practitioner', "sparc-practitioner-yyds-001")
+    patient_to_save['name'] = [
+        {
+            'given': ['Edward2'],
+            'family': 'Ferdian',
+            'use': 'official',
+        }
+    ]
+
+    # practitioner1, created = sync_client.resources("Practitioner").search(identifier="sparc-practitioner-yyds-001").get_or_create(patient_to_save)
+    #
+    # print(practitioner1)
+    # print(created)
+    print(sync_client.resources("Practitioner").search(identifier="sparc-practitioner-yyds-001").fetch_all())
     practitioner = sync_search_single_resource("sparc-practitioner-yyds-001", 'Practitioner')
+
+
     group1 = await async_client.resources('Group').search(managing_entity=practitioner.to_reference()).fetch_all()
     group2 = await async_client.resources('Group').search(member=synthetic_patients[0].to_reference()).fetch_all()
     group3 = await async_client.resources('Group').search(code='46251-5').fetch_all()

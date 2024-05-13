@@ -173,7 +173,9 @@ async def search_synthetic_patient():
 
     synthetic_patients = await async_client.resources('Patient').search().limit(count).fetch()
     for p in synthetic_patients:
+        print(p['identifier'])
         print(p['gender'])
+        print(calculate_age(p['birthDate']))
 
     patient_to_save = create_resource('Practitioner', "sparc-practitioner-yyds-001")
     patient_to_save['name'] = [
